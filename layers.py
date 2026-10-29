@@ -94,5 +94,30 @@ class EncoderLayer(nn.Module):
 
         return x
 
+class DecoderLayer(nn.Module):
+    def __init__(self,d_model,num_heads,d_ff,dropout):
+        super().__init__()
 
+        self.self_attention = maskedMultiHeadAttention(d_model, num_heads, dropout)
+        self.cross_attention = maskedMultiHeadAttention(d_model, num_heads, dropout)
+        self.feed_forward = FeedForward(d_model, d_ff, dropout)
+        self.self_attention_norm = nn.LayerNorm(d_model)
+        self.cross_attention_norm = nn.LayerNorm(d_model)
+        self.feed_forward_norm = nn.LayerNorm(d_model)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self,x,encoder_output,source_mask,target_mask):
+
+        # 1. masked self-attention: each target word only sees earlier target words
+        self_attention_out = self.self_attention(x, x, x, target_mask)
+        x = self.self_attention_norm(x + self.dropout(self_attention_out))
+ 
+        # 2. cross-attention: queries from decoder, keys/values from encoder
+        cross_attention_out = self.cross_attention(x, encoder_output, encoder_output, source_mask)
+        x = self.cross_attention_norm(x + self.dropout(cross_attention_out))
+ 
+        # 3. feed forward
+        feed_forward_out = self.feed_forward(x)
+        x = self.feed_forward_norm(x + self.dropout(feed_forward_out))
+        return x
 
