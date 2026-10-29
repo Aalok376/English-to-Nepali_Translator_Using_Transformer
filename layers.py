@@ -53,9 +53,17 @@ class maskedMultiHeadAttention(nn.Module):
         scores=query@key.transpose(-2,-1)/math.sqrt(self.head_dim)
 
         if mask is not None:
-            scores=scores.masked_fill(mask==0,float("-inf"))#0=not allowed to look
+            scores = scores.masked_fill(mask == 0, float("-inf"))
 
-        attention_weights=self.dropout(torch.softmax(scores,dim=1))
+        if torch.isneginf(scores).all(dim=-1).any():
+            raise RuntimeError("Attention row has every key masked!")
+
+        attention_weights = torch.softmax(scores, dim=-1)
+
+        if not torch.isfinite(attention_weights).all():
+            raise RuntimeError("Attention weights contain NaN or Inf!")
+
+        attention_weights = self.dropout(attention_weights)
         context=attention_weights@value
 
         context=context.transpose(1,2).contiguous().view(batch_size,query_len,-1)

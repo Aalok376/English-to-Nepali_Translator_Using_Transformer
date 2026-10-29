@@ -30,10 +30,23 @@ def run_one_epoch(
         with torch.set_grad_enabled(is_training):
             logits = model(source, decoder_input)
 
+            if not torch.isfinite(logits).all():
+                print("Non-finite logits detected!")
+                print("Source shape:", source.shape)
+                print("Decoder shape:", decoder_input.shape)
+                print("Logits min/max:", logits.nan_to_num().min().item(),
+                    logits.nan_to_num().max().item())
+                raise RuntimeError("Model produced NaN or Inf logits")
+
             loss = loss_function(
                 logits.reshape(-1, logits.size(-1)),
                 labels.reshape(-1),
             )
+
+            if not torch.isfinite(loss):
+                print("Non-finite loss detected!")
+                print("Labels min/max:", labels.min().item(), labels.max().item())
+                raise RuntimeError("Loss is NaN or Inf")
 
         if is_training:
             optimizer.zero_grad()
