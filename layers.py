@@ -39,4 +39,26 @@ class maskedMultiHeadAttention(nn.Module):
 
     def split_heads(self,x):
         # (batch, seq_len, d_model) -> (batch, num_heads, seq_len, head_dim)
-        
+        batch_size,seq_len,_=x.shape
+        x=x.view(batch_size,seq_len,self.num_heads,self.head_dim)
+        return x.transpose(1,2)
+
+    def forward(self,query,key,value,mask=None):
+        batch_size,query_len,_=query.shape
+
+        query=self.split_heads(self.query_proj(query))
+        key=self.split_heads(self.key_proj(key))
+        value=self.split_heads(self.value_proj(value))
+
+        scores=query@key.transpose(-2,-1)/math.sqrt(self.head_dim)
+
+        if mask is not None:
+            scores=scores.masked_fill(mask==0,float("-inf"))#0=not allowed to look
+
+        attention_weights=self.dropout(torch.softmax(scores,dim=1))
+        context=attention_weights@value
+
+        context=context.transpose(1,2).contiguous().view(batch_size,query_len,-1)
+        return self.output_proj(context)
+
+
