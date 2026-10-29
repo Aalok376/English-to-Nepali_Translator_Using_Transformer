@@ -73,3 +73,26 @@ class FeedForward(nn.Module):
         return self.shrink(self.dropout(torch.relu(self.expand(x))))
 
 
+class EncoderLayer(nn.Module):
+    def __init__(self,d_model,num_heads,d_ff,dropout):
+        super().__init__()
+
+        self.self_attention=maskedMultiHeadAttention(d_model,num_heads,dropout)
+        self.cross_attention=maskedMultiHeadAttention(d_model,num_heads,dropout)
+        self.feed_forward=FeedForward(d_model,d_ff,dropout)
+        self.self_attention_norm=nn.LayerNorm(d_model)
+        self.cross_attention_norm=nn.LayerNorm(d_model)
+        self.feed_forward_norm=nn.LayerNorm(d_model)
+        self.dropout=nn.Dropout(dropout)
+
+    def forward(self,x,source_mask):
+        attention_out=self.self_attention(x,x,x,source_mask)
+        x=self.self_attention_norm(x+self.dropout(attention_out))
+
+        feed_forward_out=self.feed_forward(x)
+        x=self.feed_forward_norm(x+self.dropout(feed_forward_out))
+
+        return x
+
+
+
