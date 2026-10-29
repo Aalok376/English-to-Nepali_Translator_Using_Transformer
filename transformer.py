@@ -37,7 +37,7 @@ class Transformer(nn.Module):
         return encoder_output, source_mask
  
     def decode(self, target_ids, encoder_output, source_mask):
-        target_mask = self.make_target_mask(target_ids)
+        target_mask = self.make_target_masks(target_ids)
         decoder_output = self.decoder(target_ids, encoder_output, source_mask, target_mask)
         return self.output_layer(decoder_output) 
 

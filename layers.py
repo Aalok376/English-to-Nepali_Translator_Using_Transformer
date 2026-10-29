@@ -11,7 +11,7 @@ class positionalEncoding(nn.Module):
         positions=torch.arange(max_length).unsqueeze(1)
         frequencies=torch.exp(torch.arange(0,d_model,2)*(-math.log(10000.0) / d_model))
 
-        encoding=torch.zeros[max_length,d_model]
+        encoding = torch.zeros(max_length, d_model)
         encoding[:,0::2]=torch.sin(positions*frequencies)
         encoding[:,1::2]=torch.cos(positions*frequencies)
 
