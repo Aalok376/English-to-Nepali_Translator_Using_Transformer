@@ -61,4 +61,15 @@ class maskedMultiHeadAttention(nn.Module):
         context=context.transpose(1,2).contiguous().view(batch_size,query_len,-1)
         return self.output_proj(context)
 
+class FeedForward(nn.Module):
+    def __init__(self,d_model,d_ff,dropout):
+        super().__init__()
+
+        self.expand=nn.Linear(d_model,d_ff)
+        self.shrink=nn.Linear(d_ff,d_model)
+        self.dropout=nn.Dropout(dropout)
+
+    def forward(self,x):
+        return self.shrink(self.dropout(torch.relu(self.expand(x))))
+
 
