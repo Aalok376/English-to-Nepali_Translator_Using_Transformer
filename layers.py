@@ -1,3 +1,10 @@
+"""
+The building blocks of the Transformer.
+
+Contains positional encoding, multi-head attention, the feed-forward layer,
+the encoder layer and the decoder layer.
+"""
+
 import torch
 import math
 import torch.nn as nn

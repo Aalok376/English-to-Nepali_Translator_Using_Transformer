@@ -1,3 +1,11 @@
+"""
+All settings for the project in one place.
+
+Contains the model size (layers, d_model, heads), training settings
+(batch size, epochs, warmup, label smoothing), dataset settings,
+special token ids and folder paths.
+"""
+
 from dataclasses import dataclass
 import torch
 
@@ -10,7 +18,7 @@ class Config:
     dropout:float=0.1        #turn off some random numbers to prevent from overfitting
 
     dataset_name:str="CohleM/english-to-nepali"
-    num_pairs:int=100000
+    num_pairs:int=1000000      #larger than the dataset, so every cleaned pair is kept
     max_length:int=60          #maximum no of token in a sentence
     train_ratio:float=0.90
     validation_ratio:float=0.05
@@ -21,10 +29,10 @@ class Config:
     bos_id:int=2          #beginning of sentence
     eos_id:int=3          #end of sentence
 
-    batch_size:int=32
-    num_epochs:int=20
+    batch_size:int=128
+    num_epochs:int=40
     warmup_steps:int=1000        #Warmup means the learning rate starts near zero and grows slowly for the first 1000 steps, then slowly decreases afterwards
-    label_smoothing:float=0.1    
+    label_smoothing:float=0.1
     seed:int=42
 
     data_dir:str="data"
@@ -48,4 +56,3 @@ if __name__=="__main__":
     print(config)
     print("device:",config.device)
     print("head_size:",config.head_size)
-

@@ -1,3 +1,10 @@
+"""
+The decoder.
+
+Stacks the decoder layers. It writes the Nepali sentence one token at a time,
+looking at the Nepali written so far and at the encoder output.
+"""
+
 import math
 import torch.nn as nn
 from layers import positionalEncoding, DecoderLayer

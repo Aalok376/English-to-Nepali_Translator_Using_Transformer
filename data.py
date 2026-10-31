@@ -1,3 +1,11 @@
+"""
+Everything about the data.
+
+Downloads the English-Nepali dataset, cleans it (extra spaces, duplicates,
+broken text, bad length ratios), splits it into train, validation and test,
+trains the SentencePiece tokenizer, and builds the batches the model reads.
+"""
+
 import os
 import pandas as pd
 from datasets import load_dataset
@@ -35,9 +43,13 @@ def clean_pairs(pairs):
     show_count("after removing duplicate rows and column",pairs)
 
     #now filter english and nepali atleast one english or nepali character must be there eleminates row containing only numbers or symbols
+    #(pandas uses the RE2 regex engine here, which writes unicode as \x{0900} instead of \u0900)
     has_english=pairs["english"].str.contains(r"[A-Za-z]")
     has_nepali = pairs["nepali"].str.contains(r"[\x{0900}-\x{097F}]")
     pairs = pairs[has_english & has_nepali]
+
+    #nepali text containing english letters is almost always broken font encoding
+    pairs = pairs[~pairs["nepali"].str.contains(r"[A-Za-z]")]
     show_count("after script check", pairs)
 
     #check length ratio

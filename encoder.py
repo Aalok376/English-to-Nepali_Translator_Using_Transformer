@@ -1,3 +1,10 @@
+"""
+The encoder.
+
+Stacks the encoder layers. It reads the English sentence and turns it into
+a representation that the decoder can use.
+"""
+
 import math
 import torch.nn as nn
 from layers import positionalEncoding,EncoderLayer
