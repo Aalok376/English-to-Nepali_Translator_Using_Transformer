@@ -1,3 +1,23 @@
+# Python
+__pycache__/
+*.pyc
 
-# Local model checkpoints
+# Virtual environments and editor settings
+.venv/
+venv/
+.vscode/
+.idea/
+
+# Large model files (too big for GitHub)
 checkpoints/
+nllb_model/
+*.pt
+*.bin
+
+# Adapter from the short test run (the final adapter in nllb_lora/ is kept)
+nllb_lora_short/
+
+# Hugging Face cache and OS files
+.cache/
+.DS_Store
+Thumbs.db
